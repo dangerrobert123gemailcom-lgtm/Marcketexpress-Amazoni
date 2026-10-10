@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html lang="fr" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Market Express - Plateforme E-commerce</title>
+
+    <!-- LOGO MARKET EXPRESS : FAVICON ET ÉCRAN D'ACCUEIL (PWA / MOBILE) -->
+    <link rel="icon" type="image/png" href="https://i.ibb.co/L181Yy0/37365.jpg">
+    <link rel="apple-touch-icon" sizes="180x180" href="https://i.ibb.co/L181Yy0/37365.jpg">
+    <meta name="apple-mobile-web-app-title" content="Market Express">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Importation du client Supabase UMD -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        tailwind.config = { darkMode: 'media' }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 h-full flex flex-col justify-between overflow-x-hidden transition-colors duration-300">
+
+    <div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none"></div>
+
+    <!-- AUTH VIEW -->
+    <div id="auth-view" class="flex-1 flex flex-col justify-center px-6 py-12 max-w-md w-full mx-auto">
+        <div class="text-center mb-6">
+            <div class="inline-block bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-xs font-bold px-4 py-1.5 rounded-full shadow-lg mb-2 uppercase tracking-wider">
+                Socio patrocinador
+            </div>
+            <p class="text-xs text-slate-500 dark:text-slate-400">OFFICIAL SPONSORSHIP, QUALITY ASSURANCE</p>
+            <div class="flex justify-center gap-3 mt-2 text-sm font-bold text-blue-600 dark:text-blue-400">
+                <span class="bg-blue-100 dark:bg-blue-950 px-3 py-1 rounded border border-blue-200 dark:border-blue-800">FLIPKART</span>
+                <span class="bg-blue-100 dark:bg-blue-950 px-3 py-1 rounded border border-blue-200 dark:border-blue-800">INDIAMART</span>
+            </div>
+        </div>
+
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-2xl transition-colors duration-300">
+            <div class="flex bg-slate-100 dark:bg-slate-950 p-1 rounded-xl mb-6 border border-slate-200 dark:border-slate-800">
+                <button onclick="switchAuthTab('login')" id="tab-login-btn" class="flex-1 py-2 text-sm font-semibold rounded-lg transition-all bg-blue-600 text-white shadow-md">Iniciar sesión</button>
+                <button onclick="switchAuthTab('register')" id="tab-register-btn" class="flex-1 py-2 text-sm font-semibold rounded-lg transition-all text-slate-500 dark:text-slate-400">registro</button>
+            </div>
+
+            <!-- Register Form -->
+            <form id="register-form" onsubmit="handleRegister(event)" class="space-y-4 hidden">
+                <h2 class="text-xl font-bold mb-4 text-slate-900 dark:text-white uppercase tracking-wide">registro de cuenta</h2>
+                <div>
+                    <div class="relative flex items-center bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 focus-within:border-blue-500">
+                        <i class="fa-solid fa-user text-blue-500 text-xs mr-3"></i>
+                        <input type="text" id="reg-username" required placeholder="Nombre de usuario unique" class="bg-transparent w-full text-sm text-slate-900 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none">
+                    </div>
+                </div>
+                <div>
+                    <div class="relative flex items-center bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 focus-within:border-blue-500">
+                        <i class="fa-solid fa-phone text-blue-500 text-xs mr-3"></i>
+                        <input type="tel" id="reg-phone" required placeholder="Número de teléfono" class="bg-transparent w-full text-sm text-slate-900 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none">
+                    </div>
+                </div>
+                <div>
+                    <div class="relative flex items-center bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 focus-within:border-blue-500">
+                        <i class="fa-solid fa-lock text-blue-500 text-xs mr-3"></i>
+                        <input type="password" id="reg-password" required placeholder="Contraseña secreta" class="bg-transparent w-full text-sm text-slate-900 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none">
+                    </div>
+                </div>
+                <div>
+                    <div class="relative flex items-center bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 focus-within:border-blue-500">
+                        <i class="fa-solid fa-ticket text-blue-500 text-xs mr-3"></i>
+                        <input type="text" id="reg-invite" value="386912" placeholder="Código de invitación" class="bg-transparent w-full text-sm text-slate-900 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none">
+                    </div>
+                </div>
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3.5 rounded-xl shadow-lg transition-all text-center">
+                    Crear cuenta y registrarse
+                </button>
+            </form>
+
+            <!-- Login Form -->
+            <form id="login-form" onsubmit="handleLogin(event)" class="space-y-4">
+                <h2 class="text-xl font-bold mb-4 text-slate-900 dark:text-white uppercase tracking-wide">Iniciar sesión</h2>
+                <div>
+                    <div class="relative flex items-center bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 focus-within:border-blue-500">
+                        <i class="fa-solid fa-user text-blue-500 text-xs mr-3"></i>
+                        <input type="text" id="log-username" required placeholder="Ingrese su nombre de usuario" class="bg-transparent w-full text-sm text-slate-900 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none">
+                    </div>
+                </div>
+                <div>
+                    <div class="relative flex items-center bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 focus-within:border-blue-500">
+                        <i class="fa-solid fa-lock text-blue-500 text-xs mr-3"></i>
+                        <input type="password" id="log-password" required placeholder="Ingrese su contraseña" class="bg-transparent w-full text-sm text-slate-900 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none">
+                    </div>
+                </div>
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3.5 rounded-xl shadow-lg transition-all text-center">
+                    Iniciar sesión
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- APP VIEW -->
+    <div id="app-view" class="hidden flex-1 flex flex-col max-w-lg w-full mx-auto relative overflow-hidden pb-20">
+        
+        <!-- HEADER TOP BANNER -->
+        <div class="bg-white dark:bg-gradient-to-r dark:from-slate-900 dark:to-indigo-950 p-4 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center transition-colors duration-300">
+            <div class="flex items-center gap-2">
+                <span id="header-brand-badge" class="bg-blue-600 text-white px-3 py-1 rounded-full text-xs font-bold">SHEIN</span>
+                <span id="page-title-display" class="text-sm font-medium text-slate-600 dark:text-slate-300">pagina de inicio</span>
+            </div>
+            <div class="flex items-center gap-3">
+                <span id="top-username" class="text-xs font-semibold text-slate-700 dark:text-slate-300">Utilisateur</span>
+                <button onclick="logout()" class="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white" title="Déconnexion"><i class="fa-solid fa-right-from-bracket"></i></button>
+            </div>
+        </div>
+
+        <!-- MAIN SCROLLABLE CONTENT AREA -->
+        <div class="flex-1 overflow-y-auto p-4 space-y-4">
+
+            <!-- BOUTON SUPERVISEUR TOUT EN HAUT DE L'ÉCRAN -->
+            <div class="w-full">
+                <button onclick="promptAdminAccess()" class="w-full bg-gradient-to-r from-amber-600 via-red-600 to-rose-700 hover:from-amber-500 hover:to-red-600 text-white font-bold p-4 rounded-2xl shadow-xl flex items-center justify-center gap-3 text-xs uppercase tracking-wider transition-all border border-amber-500/30">
+                    <i class="fa-solid fa-shield-halved text-lg animate-pulse"></i>
+                    <span>PANNEAU SUPERVISEUR & GESTION DES TÂCHES</span>
+                </button>
+            </div>
+
+            <!-- SUPERVISOR PANEL VIEW -->
+            <div id="view-admin" class="space-y-4 hidden">
+                <div class="bg-gradient-to-r from-amber-600 to-red-600 rounded-2xl p-5 shadow-xl text-white space-y-2">
+                    <div class="flex justify-between items-center">
+                        <h2 class="text-base font-bold uppercase tracking-wider"><i class="fa-solid fa-shield-halved mr-2"></i> Panneau Superviseur & Admin</h2>
+                        <button onclick="switchTab('inicio')" class="bg-black/30 text-xs px-3 py-1 rounded-lg hover:bg-black/50 font-bold">Fermer</button>
+                    </div>
+                    <p class="text-xs text-amber-100">Supervisez tous les inscrits (synchronisés globalement via Supabase), modifiez leurs soldes et injectez des tâches avec photo.</p>
+                </div>
+
+                <!-- Tabs Admin -->
+                <div class="flex bg-slate-100 dark:bg-slate-900 p-1 rounded-xl border border-slate-200 dark:border-slate-800 text-xs font-semibold">
+                    <button onclick="switchAdminSubTab('users')" id="admin-subtab-users-btn" class="flex-1 py-2.5 rounded-lg bg-blue-600 text-white transition-all">Utilisateurs inscrits</button>
+                    <button onclick="switchAdminSubTab('tasks')" id="admin-subtab-tasks-btn" class="flex-1 py-2.5 rounded-lg text-slate-500 dark:text-slate-400 transition-all">Attribuer Tâches & Accessoires</button>
+                </div>
+
+                <!-- Subtab 1: Users list -->
+                <div id="admin-subtab-users" class="space-y-3">
+                    <div class="flex justify-between items-center text-xs text-slate-500 dark:text-slate-400 px-1">
+                        <span>Liste des comptes enregistrés (Cloud)</span>
+                        <button onclick="renderAdminUsers()" class="text-blue-600 dark:text-blue-400 hover:underline font-bold"><i class="fa-solid fa-rotate mr-1"></i>Actualiser</button>
+                    </div>
+                    <div id="admin-users-list" class="space-y-3"></div>
+                </div>
+
+                <!-- Subtab 2: Custom Tasks Management -->
+                <div id="admin-subtab-tasks" class="space-y-4 hidden">
+                    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 space-y-4 shadow-lg">
+                        <h3 class="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider">Créer et injecter une tâche personnalisée</h3>
+                        <form onsubmit="adminCreateCustomTask(event)" class="space-y-3 text-xs">
+                            <div>
+                                <label class="text-slate-600 dark:text-slate-400 block mb-1">Cible (Pseudo exact ou 'ALL' pour tous)</label>
+                                <input type="text" id="adm-task-target" required placeholder="Ex: Moussa ou ALL" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-slate-900 dark:text-slate-200 focus:outline-none focus:border-blue-500">
+                            </div>
+                            <div>
+                                <label class="text-slate-600 dark:text-slate-400 block mb-1">Nom du produit</label>
+                                <input type="text" id="adm-task-name" required placeholder="Ex: Cage extra-large pour chien" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-slate-900 dark:text-slate-200 focus:outline-none focus:border-blue-500">
+                            </div>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="text-slate-600 dark:text-slate-400 block mb-1">Prix Total du produit (FCFA)</label>
+                                    <input type="number" id="adm-task-price" required placeholder="Ex: 56470" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-3 text-slate-900 dark:text-slate-200 focus:outline-none focus:border-blue-500">
+                                </div>
+                                <div>
+                                    <label class="text-slate-600 dark:text-slate-400 block mb-1">Montant du revenu / Commission (FCFA)</label>
+                                    <input type="number" id="adm-task-comm" required placeholder="Ex: 81881.50" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-3 text-slate-900 dark:text-slate-200 focus:outline-none focus:border-blue-500">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="text-slate-600 dark:text-slate-400 block mb-1">Photo du produit</label>
+                                <div class="flex items-center gap-3">
+                                    <label class="flex-1 cursor-pointer bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 hover:border-blue-500 rounded-xl px-4 py-3 text-slate-700 dark:text-slate-300 flex items-center justify-center gap-2 transition-all">
+                                        <i class="fa-solid fa-camera text-blue-500"></i>
+                                        <span id="file-chosen-label">Choisir une photo...</span>
+                                        <input type="file" id="adm-task-file" accept="image/*" onchange="handleAdminFileSelect(event)" class="hidden">
+                                    </label>
+                                </div>
+                                <div id="admin-img-preview-container" class="mt-2 hidden">
+                                    <img id="admin-img-preview" src="" alt="Aperçu" class="w-20 h-20 rounded-xl object-cover border border-slate-300 dark:border-slate-700">
+                                </div>
+                            </div>
+                            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3.5 rounded-xl shadow-lg transition-all">
+                                Envoyer la tâche au cloud
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VIEW 1: HOME -->
+            <div id="view-inicio" class="space-y-4">
+                <div class="relative bg-gradient-to-r from-purple-900 via-slate-900 to-blue-900 rounded-2xl overflow-hidden shadow-xl border border-slate-200 dark:border-slate-800 p-6 flex items-center justify-between text-white">
+                    <div>
+                        <h2 class="text-lg font-bold mb-1">Centre commercial</h2>
+                        <p class="text-xs text-slate-200 max-w-[200px]">Maximisez vos gains quotidiens avec nos partenaires e-commerce mondiaux.</p>
+                    </div>
+                    <img src="https://images.unsplash.com/photo-1555529771-835f59fc5efe?auto=format&fit=crop&w=300&q=80" alt="Promo" class="w-24 h-24 rounded-xl shadow-md object-cover">
+                </div>
+
+                <div class="grid grid-cols-4 gap-3 text-center">
+                    <button onclick="switchTab('inicio')" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-3 rounded-2xl flex flex-col items-center gap-2 shadow-sm">
+                        <div class="w-12 h-12 rounded-full bg-amber-500/20 text-amber-500 flex items-center justify-center text-lg"><i class="fa-solid fa-book-open"></i></div>
+                        <span class="text-[11px] text-slate-700 dark:text-slate-300 font-medium">breve introducción</span>
+                    </button>
+                    <button onclick="switchTab('recargar')" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-3 rounded-2xl flex flex-col items-center gap-2 shadow-sm">
+                        <div class="w-12 h-12 rounded-full bg-blue-500/20 text-blue-500 flex items-center justify-center text-lg"><i class="fa-solid fa-wallet"></i></div>
+                        <span class="text-[11px] text-slate-700 dark:text-slate-300 font-medium">Recargar</span>
+                    </button>
+                    <button onclick="switchTab('retiro')" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-3 rounded-2xl flex flex-col items-center gap-2 shadow-sm">
+                        <div class="w-12 h-12 rounded-full bg-emerald-500/20 text-emerald-500 flex items-center justify-center text-lg"><i class="fa-solid fa-money-bill-transfer"></i></div>
+                        <span class="text-[11px] text-slate-700 dark:text-slate-300 font-medium">Retiro</span>
+                    </button>
+                    <button onclick="showToast('Lien de parrainage copié !', 'success')" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-3 rounded-2xl flex flex-col items-center gap-2 shadow-sm">
+                        <div class="w-12 h-12 rounded-full bg-indigo-500/20 text-indigo-500 flex items-center justify-center text-lg"><i class="fa-solid fa-envelope"></i></div>
+                        <span class="text-[11px] text-slate-700 dark:text-slate-300 font-medium">Correo</span>
+                    </button>
+                </div>
+
+                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-lg space-y-4">
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs text-slate-500 font-semibold uppercase tracking-wider">información personal</span>
+                        <span class="text-xs bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded">LV0</span>
+                    </div>
+                    <div>
+                        <div class="text-xs text-slate-500 mb-1 flex items-center justify-between">
+                            <span>Saldo de cuenta</span>
+                            <button onclick="refreshUserData()" class="text-blue-500 hover:underline"><i class="fa-solid fa-rotate"></i></button>
+                        </div>
+                        <div id="user-balance-display" class="text-3xl font-bold text-slate-900 dark:text-white">500.00</div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4 pt-2 border-t border-slate-200 dark:border-slate-800">
+                        <div>
+                            <div class="text-xs text-slate-500 mb-0.5">Ganancias hoy:</div>
+                            <div id="earnings-today" class="text-sm font-semibold text-slate-800 dark:text-slate-200">0.00</div>
+                        </div>
+                        <div>
+                            <div class="text-xs text-slate-500 mb-0.5">Ingresos totales:</div>
+                            <div id="earnings-total" class="text-sm font-semibold text-slate-800 dark:text-slate-200">0.00</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-3">
+                    <h3 class="text-xs font-semibold text-slate-500 uppercase tracking-wider">socio cooperativo</h3>
+                    <div class="grid grid-cols-3 gap-3">
+                        <button onclick="selectStore('Amazon')" class="bg-white dark:bg-slate-900 border border-slate-200 hover:border-blue-500 p-4 rounded-xl text-center font-bold text-sm shadow-sm">Amazon</button>
+                        <button onclick="selectStore('Sam\'s Club')" class="bg-white dark:bg-slate-900 border border-slate-200 hover:border-blue-500 p-4 rounded-xl text-center font-bold text-sm shadow-sm">Sam's Club</button>
+                        <button onclick="selectStore('Mercado Libre')" class="bg-white dark:bg-slate-900 border border-slate-200 hover:border-blue-500 p-4 rounded-xl text-center font-bold text-sm shadow-sm">Mercado Libre</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VIEW 2: RECARGAR -->
+            <div id="view-recargar" class="space-y-4 hidden">
+                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 space-y-4 shadow-lg">
+                    <h3 class="text-sm font-bold uppercase tracking-wider">Montant de recharge (FCFA / XOF)</h3>
+                    <div class="grid grid-cols-3 gap-3">
+                        <button onclick="setRechargeAmount(2000)" class="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 py-3 rounded-xl font-semibold text-sm">2 000</button>
+                        <button onclick="setRechargeAmount(5000)" class="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 py-3 rounded-xl font-semibold text-sm">5 000</button>
+                        <button onclick="setRechargeAmount(10000)" class="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 py-3 rounded-xl font-semibold text-sm">10 000</button>
+                    </div>
+                    <div>
+                        <label class="text-xs text-slate-500 block mb-1">Monto personalizado</label>
+                        <input type="number" id="custom-recharge-input" placeholder="Ex: 15000" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label class="text-xs text-slate-500 block mb-1">Code secret de validation de recharge</label>
+                        <input type="password" id="recharge-pass-code" placeholder="Code secret..." class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-500">
+                    </div>
+                    <button onclick="confirmRecharge()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3.5 rounded-xl shadow-lg">Confirmar Recarga</button>
+                </div>
+            </div>
+
+            <!-- VIEW 2.5: RETIRO -->
+            <div id="view-retiro" class="space-y-4 hidden">
+                <div class="bg-gradient-to-br from-[#d4af37] via-[#c5a059] to-[#b8860b] text-slate-950 rounded-2xl p-6 shadow-xl space-y-4">
+                    <div>
+                        <div class="text-xs font-semibold tracking-wider mb-1">Saldo disponible</div>
+                        <div id="withdraw-saldo-display" class="text-3xl font-extrabold">0.00</div>
+                    </div>
+                    <div class="pt-3 border-t border-slate-900/20 flex justify-between text-xs font-semibold text-slate-900">
+                        <div>Tarifa de retiro: <span class="font-bold">0</span></div>
+                        <div>Retiro mínimo: <span class="font-bold">0</span></div>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 space-y-5 shadow-lg">
+                    <input type="number" id="withdraw-amount-input" placeholder="Cantidad a retirar" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none">
+                    <input type="password" id="withdraw-fund-password" placeholder="Contraseña del fondo" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none">
+                    
+                    <div class="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-4 space-y-2 text-xs text-slate-600 dark:text-slate-400">
+                        <div class="font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wide">Consejos</div>
+                        <p>1. Comuníquese con la persona a cargo para informar la información del monto del retiro.</p>
+                        <p>2. El tiempo de retiro puede retrasarse hasta 24 horas, el tiempo específico de llegada está sujeto al banco.</p>
+                    </div>
+
+                    <button onclick="executeWithdrawal()" class="w-full bg-blue-600 text-white font-bold py-4 rounded-xl shadow-lg">Confirmar retiro</button>
+                </div>
+            </div>
+
+            <!-- VIEW 3: TAREA -->
+            <div id="view-tarea" class="space-y-4 hidden">
+                <div class="bg-slate-900 text-white rounded-2xl p-5 shadow-xl space-y-4 border border-slate-800">
+                    <div class="flex justify-between items-start">
+                        <div class="flex items-center gap-2">
+                            <span id="store-name-display" class="text-base font-bold text-white">Centro comercial Amazonas</span>
+                            <i class="fa-solid fa-chevron-right text-xs text-slate-400"></i>
+                        </div>
+                        <div class="bg-[#d4af37]/20 border border-[#d4af37]/40 text-[#d4af37] p-2.5 rounded-xl text-right text-xs">
+                            <div>Saldo mínimo: <span class="font-bold">36.8</span></div>
+                            <div>valor de beneficio: <span class="font-bold">48.8%</span></div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4 pt-2 border-t border-slate-800 text-xs">
+                        <div>
+                            <div class="text-slate-400">Ganancias hoy</div>
+                            <div id="task-earnings-today" class="text-lg font-bold text-white">0.00</div>
+                        </div>
+                        <div>
+                            <div class="text-slate-400">Ingresos totales</div>
+                            <div id="task-earnings-total" class="text-lg font-bold text-white">0.00</div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-2 pt-2 border-t border-slate-800 text-center text-xs">
+                        <div class="bg-slate-950 p-2 rounded-xl">
+                            <div class="text-slate-400 text-[10px]">Completa la tarea</div>
+                            <div id="task-completed-count" class="font-bold text-white text-sm">0</div>
+                        </div>
+                        <div class="bg-slate-950 p-2 rounded-xl">
+                            <div class="text-slate-400 text-[10px]">Tareas congeladas</div>
+                            <div class="font-bold text-white text-sm">0</div>
+                        </div>
+                        <div class="bg-slate-950 p-2 rounded-xl">
+                            <div class="text-slate-400 text-[10px]">Tarea inacabada</div>
+                            <div id="count-pending-tasks" class="font-bold text-amber-500 text-sm">0</div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3 text-xs pt-1">
+                        <div>
+                            <span class="text-slate-400">Saldo congelado:</span>
+                            <span class="font-bold text-white ml-1">0.00</span>
+                        </div>
+                        <div>
+                            <span class="text-slate-400">Saldo disponible:</span>
+                            <span id="task-saldo-disponible" class="font-bold text-white ml-1">500.00</span>
+                        </div>
+                    </div>
+
+                    <button onclick="startGrabbingOrder()" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3.5 rounded-xl shadow-lg flex items-center justify-center gap-2 text-sm transition-all">
+                        <i class="fa-solid fa-hand-pointer"></i>
+                        <span>Tomar pedidos</span>
+                    </button>
+                </div>
+
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 text-xs text-slate-300 space-y-2">
+                    <h4 class="font-bold text-white uppercase tracking-wider text-sm">nota</h4>
+                    <p class="leading-relaxed text-slate-400">
+                        Cuando el usuario coincide con el pedido, la plataforma enviará sincrónicamente la información del pedido a los comerciantes. Si el pedido no es pagado en minutos, quedará congelado. Para evitar la supervisión de la plataforma de compras online, los fondos del pedido también serán congelados. Debe esperar a que el sistema lo descongele. Por favor tenga en cuenta esto.
+                    </p>
+                </div>
+            </div>
+
+            <!-- VIEW 4: ORDEN -->
+            <div id="view-orden" class="space-y-4 hidden">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-sm font-bold uppercase tracking-wider">Historial de pedidos</h3>
+                    <span id="order-count-badge" class="text-xs bg-slate-200 dark:bg-slate-800 px-2.5 py-1 rounded-full">Total: 0</span>
+                </div>
+                <div id="orders-list-container" class="space-y-3">
+                    <div class="text-center py-12 text-slate-400 text-xs">No hay pedidos realizados aún.</div>
+                </div>
+            </div>
+
+            <!-- VIEW 5: PERSONAL ("MI") AVEC LE BLOC CHEVAUCHANT -->
+            <div id="view-personal" class="space-y-4 hidden">
+                <div class="bg-gradient-to-b from-[#3b82f6] to-[#1e3a8a] text-white rounded-3xl p-6 shadow-xl space-y-6 relative overflow-hidden pb-12">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs uppercase tracking-widest font-semibold opacity-80">Centro personal</span>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <div class="w-16 h-16 rounded-full bg-white/20 border-2 border-white/40 flex items-center justify-center text-white text-2xl font-bold shadow-md">
+                            <i class="fa-solid fa-user"></i>
+                        </div>
+                        <div class="flex-1">
+                            <div id="mi-username" class="text-base font-bold tracking-wide">Utilisateur</div>
+                            <div class="mt-2 inline-flex items-center gap-1.5 bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 px-4 py-1 rounded-full text-xs font-black shadow-md">
+                                <i class="fa-solid fa-crown text-[10px]"></i>
+                                <span>Lv0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bloc du solde chevauchant -->
+                <div class="mx-4 -mt-10 bg-slate-900 text-white rounded-2xl p-5 shadow-2xl border border-slate-800 flex justify-between items-center relative z-10">
+                    <div>
+                        <div class="text-xs text-slate-400 mb-1 flex items-center gap-2">
+                            <i class="fa-solid fa-wallet text-amber-500"></i>
+                            <span>Saldo de cuenta</span>
+                        </div>
+                        <div id="mi-balance" class="text-2xl font-black tracking-tight text-white">500.00</div>
+                    </div>
+                    <button onclick="refreshUserData()" class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-white hover:bg-slate-700 transition-all border border-slate-700">
+                        <i class="fa-solid fa-rotate text-xs"></i>
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-4 gap-2 text-center bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-2xl shadow-lg">
+                    <button onclick="switchTab('recargar')" class="flex flex-col items-center gap-1.5 group">
+                        <div class="w-12 h-12 rounded-2xl bg-blue-500/10 text-blue-500 dark:text-blue-400 flex items-center justify-center text-lg group-hover:scale-105 transition-transform"><i class="fa-solid fa-wallet"></i></div>
+                        <span class="text-[11px] font-medium text-slate-700 dark:text-slate-300">Recargar</span>
+                    </button>
+                    <button onclick="switchTab('retiro')" class="flex flex-col items-center gap-1.5 group">
+                        <div class="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-500 dark:text-amber-400 flex items-center justify-center text-lg group-hover:scale-105 transition-transform"><i class="fa-solid fa-money-bill-transfer"></i></div>
+                        <span class="text-[11px] font-medium text-slate-700 dark:text-slate-300">Retiro</span>
+                    </button>
+                    <button onclick="showToast('Lien de parrainage copié !', 'success')" class="flex flex-col items-center gap-1.5 group">
+                        <div class="w-12 h-12 rounded-2xl bg-indigo-500/10 text-indigo-500 dark:text-indigo-400 flex items-center justify-center text-lg group-hover:scale-105 transition-transform"><i class="fa-solid fa-chart-pie"></i></div>
+                        <span class="text-[11px] font-medium text-slate-700 dark:text-slate-300">invitación</span>
+                    </button>
+                    <button onclick="switchTab('personal')" class="flex flex-col items-center gap-1.5 group">
+                        <div class="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-500 dark:text-emerald-400 flex items-center justify-center text-lg group-hover:scale-105 transition-transform"><i class="fa-solid fa-user-gear"></i></div>
+                        <span class="text-[11px] font-medium text-slate-700 dark:text-slate-300">personal</span>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- BOTTOM NAVIGATION BAR -->
+        <div class="absolute bottom-0 left-0 right-0 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 py-2.5 px-4 flex justify-around items-center z-20">
+            <button onclick="switchTab('inicio')" class="flex flex-col items-center text-blue-600"><i class="fa-solid fa-house text-lg"></i><span class="text-[10px]">inicio</span></button>
+            <button onclick="switchTab('recargar')" class="flex flex-col items-center text-slate-400"><i class="fa-solid fa-wallet text-lg"></i><span class="text-[10px]">recargar</span></button>
+            <button onclick="switchTab('tarea')" class="flex flex-col items-center text-slate-400"><i class="fa-solid fa-bag-shopping text-lg"></i><span class="text-[10px]">tarea</span></button>
+            <button onclick="switchTab('orden')" class="flex flex-col items-center text-slate-400"><i class="fa-solid fa-comments text-lg"></i><span class="text-[10px]">orden</span></button>
+            <button onclick="switchTab('personal')" class="flex flex-col items-center text-slate-400"><i class="fa-solid fa-user text-lg"></i><span class="text-[10px]">mi</span></button>
+        </div>
+    </div>
+
+    <!-- MODAL: SELECCIÓN DE COMERCIANTE -->
+    <div id="modal-matching" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 max-w-sm w-full text-center space-y-4 shadow-2xl border border-slate-800">
+            <div class="bg-blue-50 dark:bg-slate-950 p-6 rounded-2xl flex items-center justify-center">
+                <img src="https://cdni.iconscout.com/illustration/premium/thumb/online-shopping-store-4439185-3682782.png" alt="Selection" class="w-40 h-40 object-contain animate-bounce">
+            </div>
+            <h3 class="text-base font-bold text-slate-900 dark:text-white uppercase tracking-wide">Selección de comerciante</h3>
+            <div class="flex items-center justify-center gap-2 text-xs text-blue-500 font-semibold">
+                <i class="fa-solid fa-spinner animate-spin"></i>
+                <span>Búsqueda de pedidos en curso...</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: DETAIL DU PRODUIT & PAIEMENT -->
+    <div id="modal-order-detail" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-md w-full overflow-hidden shadow-2xl flex flex-col max-h-[90vh] text-xs">
+            <div class="bg-amber-100 dark:bg-amber-950/60 text-amber-900 dark:text-amber-200 p-3 font-medium border-b border-amber-200 dark:border-amber-800">
+                Veuillez régler votre commande au plus vite ; elle sera gelée dans les délais impartis. Si le paiement n'est pas effectué, la commande sera suspendue.
+            </div>
+
+            <div class="p-4 overflow-y-auto space-y-4">
+                <div class="flex items-center gap-2 font-bold text-slate-800 dark:text-slate-200">
+                    <i class="fa-solid fa-bag-shopping text-blue-500"></i>
+                    <span id="order-store-name">magasin phare d'Amazon</span>
+                </div>
+
+                <div class="flex gap-3 items-center bg-slate-50 dark:bg-slate-950 p-3 rounded-2xl border border-slate-200 dark:border-slate-800">
+                    <img id="order-item-img" src="" class="w-20 h-20 rounded-xl object-cover border border-slate-300 dark:border-slate-700">
+                    <div class="flex-1 space-y-1">
+                        <h4 id="order-item-title" class="font-semibold text-slate-900 dark:text-white leading-snug line-clamp-2">Produit...</h4>
+                        <div id="order-item-price" class="font-bold text-slate-900 dark:text-white text-sm">0.00 FCFA</div>
+                        <span class="inline-block bg-emerald-500 text-white text-[10px] px-2 py-0.5 rounded font-bold">Garantie officielle</span>
+                    </div>
+                </div>
+
+                <div class="space-y-2 pt-2 border-t border-slate-200 dark:border-slate-800">
+                    <div class="flex justify-between text-slate-600 dark:text-slate-400">
+                        <span>Montant total</span>
+                        <span id="modal-montant-total" class="font-bold text-slate-900 dark:text-white">0.00</span>
+                    </div>
+                    <div class="flex justify-between text-slate-600 dark:text-slate-400">
+                        <span>montant du revenu</span>
+                        <span id="modal-montant-revenu" class="font-bold text-emerald-500">0.00</span>
+                    </div>
+                    <div class="flex justify-between text-slate-600 dark:text-slate-400">
+                        <span>État du paiement</span>
+                        <span class="font-bold text-blue-500">Paiement dû</span>
+                    </div>
+                    <div class="flex justify-between text-slate-600 dark:text-slate-400">
+                        <span>temps</span>
+                        <span id="modal-order-time" class="text-slate-500">2026-10-10</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-4 bg-slate-50 dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between gap-4">
+                <div id="modal-bottom-price" class="text-base font-bold text-slate-900 dark:text-white">0.00</div>
+                <button onclick="submitOrderPayment()" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl shadow-lg transition-all text-center">
+                    Passer la commande
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: ADMIN PASSWORD -->
+    <div id="modal-admin-pass" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-sm w-full p-6 space-y-4 text-center">
+            <h3 class="text-base font-bold uppercase">Accès Superviseur Sécurisé</h3>
+            <input type="password" id="admin-secret-pass-input" placeholder="Mot de passe..." class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm text-center focus:outline-none">
+            <div class="flex gap-2">
+                <button onclick="closeModal('modal-admin-pass')" class="flex-1 bg-slate-200 dark:bg-slate-800 py-3 rounded-xl text-xs font-bold">Annuler</button>
+                <button onclick="verifyAdminPassword()" class="flex-1 bg-amber-600 text-white py-3 rounded-xl text-xs font-bold">Valider</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://xmgtyuurxgpbuxfybdec.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_ihuLR6wtZC8l1O_glv2Zsg_ekdqK1rC';
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        const validRechargeCodes = ["05561147333", "05965179478", "686205865658956"];
+        const adminMasterPassword = "056417832219178162";
+
+        let currentUsername = null;
+        let currentUserData = null;
+        let adminUploadedImageBase64 = "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=300&q=80";
+
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `p-4 rounded-xl shadow-2xl text-xs font-semibold text-white transition-all flex items-center gap-3 ${type === 'success' ? 'bg-emerald-600' : 'bg-red-600'}`;
+            toast.innerHTML = `<span>${message}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        function switchAuthTab(tab) {
+            const loginForm = document.getElementById('login-form');
+            const regForm = document.getElementById('register-form');
+            if (tab === 'login') {
+                loginForm.classList.remove('hidden');
+                regForm.classList.add('hidden');
+            } else {
+                loginForm.classList.add('hidden');
+                regForm.classList.remove('hidden');
+            }
+        }
+
+        async function handleRegister(e) {
+            e.preventDefault();
+            const username = document.getElementById('reg-username').value.trim();
+            const phone = document.getElementById('reg-phone').value.trim();
+            const password = document.getElementById('reg-password').value.trim();
+
+            const { error } = await supabaseClient.from('users').insert([{
+                username, phone, password, balance: 500.00, earnings_today: 0, earnings_total: 0, orders: [], tasks: []
+            }]);
+
+            if (error) {
+                showToast("Erreur : Ce nom existe déjà ou erreur cloud.", "error");
+                return;
+            }
+
+            showToast("Compte créé avec succès dans le cloud !", "success");
+            currentUsername = username;
+            loadUserSession(username);
+        }
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            const username = document.getElementById('log-username').value.trim();
+            const password = document.getElementById('log-password').value.trim();
+
+            const { data, error } = await supabaseClient.from('users').select('*').eq('username', username).single();
+
+            if (error || !data || data.password !== password) {
+                showToast("Identifiants incorrects.", "error");
+                return;
+            }
+
+            currentUsername = username;
+            loadUserSession(username);
+            showToast("Connexion réussie !", "success");
+        }
+
+        async function loadUserSession(username) {
+            const { data } = await supabaseClient.from('users').select('*').eq('username', username).single();
+            if (data) {
+                currentUserData = data;
+                document.getElementById('auth-view').classList.add('hidden');
+                document.getElementById('app-view').classList.remove('hidden');
+                updateUIState();
+                switchTab('inicio');
+            }
+        }
+
+        async function refreshUserData() {
+            if (!currentUsername) return;
+            const { data } = await supabaseClient.from('users').select('*').eq('username', currentUsername).single();
+            if (data) {
+                currentUserData = data;
+                updateUIState();
+                showToast("Données actualisées depuis le cloud.", "success");
+            }
+        }
+
+        function updateUIState() {
+            if (!currentUserData) return;
+            document.querySelectorAll('#user-balance-display, #mi-balance, #withdraw-saldo-display, #task-saldo-disponible').forEach(el => {
+                if (el) el.innerText = (currentUserData.balance || 0).toLocaleString('fr-FR', { minimumFractionDigits: 2 });
+            });
+            document.querySelectorAll('#earnings-today, #task-earnings-today').forEach(el => {
+                if (el) el.innerText = (currentUserData.earnings_today || 0).toLocaleString('fr-FR', { minimumFractionDigits: 2 });
+            });
+            document.querySelectorAll('#earnings-total, #task-earnings-total').forEach(el => {
+                if (el) el.innerText = (currentUserData.earnings_total || 0).toLocaleString('fr-FR', { minimumFractionDigits: 2 });
+            });
+            
+            const pendingTasks = (currentUserData.tasks || []).length;
+            const ptEl = document.getElementById('count-pending-tasks');
+            if (ptEl) ptEl.innerText = pendingTasks;
+
+            const completedTasks = (currentUserData.orders || []).length;
+            const ctEl = document.getElementById('task-completed-count');
+            if (ctEl) ctEl.innerText = completedTasks;
+            
+            document.getElementById('top-username').innerText = currentUserData.username;
+            document.getElementById('mi-username').innerText = currentUserData.username;
+            renderOrdersHistory();
+        }
+
+        async function saveUserDataToCloud() {
+            await supabaseClient.from('users').update({
+                balance: currentUserData.balance,
+                earnings_today: currentUserData.earnings_today,
+                earnings_total: currentUserData.earnings_total,
+                orders: currentUserData.orders,
+                tasks: currentUserData.tasks
+            }).eq('username', currentUsername);
+        }
+
+        function logout() {
+            currentUsername = null;
+            currentUserData = null;
+            document.getElementById('app-view').classList.add('hidden');
+            document.getElementById('auth-view').classList.remove('hidden');
+            showToast("Déconnecté.", "success");
+        }
+
+        function promptAdminAccess() { document.getElementById('modal-admin-pass').classList.remove('hidden'); }
+        function verifyAdminPassword() {
+            const pass = document.getElementById('admin-secret-pass-input').value.trim();
+            if (pass === adminMasterPassword) {
+                closeModal('modal-admin-pass');
+                switchTab('admin');
+                showToast("Panneau superviseur ouvert.", "success");
+            } else { showToast("Mot de passe incorrect.", "error"); }
+        }
+
+        async function renderAdminUsers() {
+            const container = document.getElementById('admin-users-list');
+            const { data: users, error } = await supabaseClient.from('users').select('*');
+
+            if (error || !users || users.length === 0) {
+                container.innerHTML = `<div class="text-center py-6 text-slate-400 text-xs">Aucun utilisateur inscrit.</div>`;
+                return;
+            }
+
+            container.innerHTML = users.map(u => {
+                const pendingTasksCount = (u.tasks || []).length;
+                return `
+                    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 space-y-3 shadow-sm text-xs">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <h4 class="font-bold text-slate-900 dark:text-white text-sm">${u.username}</h4>
+                                <div class="text-slate-500">Tél: ${u.phone || 'N/A'}</div>
+                            </div>
+                            <span class="bg-blue-100 dark:bg-blue-950 text-blue-600 px-2.5 py-1 rounded-full font-bold text-[11px]">
+                                Tâches en attente: ${pendingTasksCount}
+                            </span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2 bg-slate-50 dark:bg-slate-950 p-2.5 rounded-xl border border-slate-200 dark:border-slate-800">
+                            <div>Solde: <span class="text-emerald-600 font-bold">${(u.balance || 0).toLocaleString('fr-FR')} FCFA</span></div>
+                            <div>Revenu aujourd'hui: <span class="text-amber-500 font-bold">${(u.earnings_today || 0).toLocaleString('fr-FR')} FCFA</span></div>
+                        </div>
+                        <div class="flex items-center gap-2 pt-2 border-t border-slate-200 dark:border-slate-800">
+                            <input type="number" id="admin-bal-${u.username}" placeholder="Nouveau solde" class="bg-slate-50 dark:bg-slate-950 border border-slate-200 rounded-xl px-3 py-2 w-32 focus:outline-none">
+                            <button onclick="adminUpdateBalance('${u.username}')" class="bg-blue-600 text-white px-3 py-2 rounded-xl font-bold">Modifier solde</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function adminUpdateBalance(uname) {
+            const val = parseFloat(document.getElementById(`admin-bal-${uname}`).value);
+            if (isNaN(val)) return showToast("Montant invalide", "error");
+
+            await supabaseClient.from('users').update({ balance: val }).eq('username', uname);
+            showToast(`Solde de ${uname} mis à jour dans le cloud !`, "success");
+            renderAdminUsers();
+            if (uname === currentUsername) refreshUserData();
+        }
+
+        function handleAdminFileSelect(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            document.getElementById('file-chosen-label').innerText = file.name;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                adminUploadedImageBase64 = e.target.result;
+                document.getElementById('admin-img-preview').src = adminUploadedImageBase64;
+                document.getElementById('admin-img-preview-container').classList.remove('hidden');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        async function adminCreateCustomTask(e) {
+            e.preventDefault();
+            const target = document.getElementById('adm-task-target').value.trim();
+            const name = document.getElementById('adm-task-name').value.trim();
+            const price = parseFloat(document.getElementById('adm-task-price').value);
+            const commission = parseFloat(document.getElementById('adm-task-comm').value);
+            const taskObj = { product: { name, price, image: adminUploadedImageBase64 }, commission };
+
+            if (target.toUpperCase() === 'ALL') {
+                const { data: users } = await supabaseClient.from('users').select('*');
+                for (let u of users) {
+                    let tasks = u.tasks || [];
+                    tasks.push(taskObj);
+                    await supabaseClient.from('users').update({ tasks }).eq('username', u.username);
+                }
+                showToast("Tâche envoyée à tous les utilisateurs !", "success");
+            } else {
+                const { data: u } = await supabaseClient.from('users').select('*').eq('username', target).single();
+                if (u) {
+                    let tasks = u.tasks || [];
+                    tasks.push(taskObj);
+                    await supabaseClient.from('users').update({ tasks }).eq('username', target);
+                    showToast(`Tâche envoyée à ${target} !`, "success");
+                } else { showToast("Utilisateur introuvable", "error"); }
+            }
+            if (currentUsername) refreshUserData();
+        }
+
+        let currentActiveOrder = null;
+
+        function startGrabbingOrder() {
+            if (!currentUserData.tasks || currentUserData.tasks.length === 0) {
+                return showToast("Aucune tâche en attente assignée par le superviseur.", "error");
+            }
+
+            document.getElementById('modal-matching').classList.remove('hidden');
+
+            setTimeout(() => {
+                document.getElementById('modal-matching').classList.add('hidden');
+                const task = currentUserData.tasks.shift();
+                saveUserDataToCloud();
+                updateUIState();
+
+                currentActiveOrder = { product: task.product, commission: task.commission };
+                document.getElementById('order-item-title').innerText = task.product.name;
+                document.getElementById('order-item-img').src = task.product.image;
+                document.getElementById('order-item-price').innerText = task.product.price.toLocaleString('fr-FR') + " FCFA";
+                document.getElementById('modal-montant-total').innerText = task.product.price.toLocaleString('fr-FR') + " FCFA";
+                document.getElementById('modal-montant-revenu').innerText = task.commission.toLocaleString('fr-FR') + " FCFA";
+                document.getElementById('modal-bottom-price').innerText = task.product.price.toLocaleString('fr-FR') + " FCFA";
+                document.getElementById('modal-order-time').innerText = new Date().toLocaleString('fr-FR');
+                document.getElementById('modal-order-detail').classList.remove('hidden');
+            }, 1200);
+        }
+
+        async function submitOrderPayment() {
+            if (!currentActiveOrder) return;
+
+            const productPrice = currentActiveOrder.product.price;
+            const userBalance = currentUserData.balance || 0;
+
+            if (userBalance < productPrice) {
+                const needed = (productPrice - userBalance).toFixed(2);
+                showInsufficientBalanceModal(userBalance, needed);
+                return;
+            }
+
+            currentUserData.balance -= productPrice;
+            currentUserData.balance += (productPrice + currentActiveOrder.commission);
+            currentUserData.earnings_today += currentActiveOrder.commission;
+            currentUserData.earnings_total += currentActiveOrder.commission;
+
+            if (!currentUserData.orders) currentUserData.orders = [];
+            currentUserData.orders.unshift({
+                ...currentActiveOrder,
+                status: "Terminada",
+                date: new Date().toLocaleString('fr-FR')
+            });
+
+            await saveUserDataToCloud();
+            closeModal('modal-order-detail');
+            updateUIState();
+            showToast("Tâche payée avec succès ! Redirection vers vos commandes...", "success");
+
+            setTimeout(() => {
+                switchTab('orden');
+            }, 800);
+        }
+
+        function showInsufficientBalanceModal(balance, needed) {
+            let overlay = document.getElementById('insufficient-balance-overlay');
+            if (!overlay) {
+                overlay = document.createElement('div');
+                overlay.id = 'insufficient-balance-overlay';
+                overlay.className = 'fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4';
+                document.body.appendChild(overlay);
+            }
+            overlay.innerHTML = `
+                <div class="bg-slate-800/90 text-white rounded-2xl p-6 max-w-sm w-full text-center space-y-4 shadow-2xl border border-slate-700 text-xs">
+                    <p class="leading-relaxed">
+                        Solde actuel : <span class="font-bold text-amber-400">${balance.toLocaleString('fr-FR')} FCFA</span>.<br>
+                        Je dois déduire <span class="font-bold text-red-400">${parseFloat(needed).toLocaleString('fr-FR')} FCFA</span> lors de la nouvelle soumission de la commande.
+                    </p>
+                    <button onclick="document.getElementById('insufficient-balance-overlay').remove()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl uppercase tracking-wider">
+                        Compris / Faire retour
+                    </button>
+                </div>
+            `;
+        }
+
+        function renderOrdersHistory() {
+            const container = document.getElementById('orders-list-container');
+            const orders = currentUserData ? (currentUserData.orders || []) : [];
+            const badge = document.getElementById('order-count-badge');
+            if (badge) badge.innerText = `Total: ${orders.length}`;
+
+            if (orders.length === 0) {
+                container.innerHTML = `<div class="text-center py-12 text-slate-400 text-xs">No hay pedidos realizados aún.</div>`;
+                return;
+            }
+
+            container.innerHTML = orders.map(o => `
+                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 space-y-3 shadow-md text-xs">
+                    <div class="flex justify-between items-center border-b border-slate-100 dark:border-slate-800 pb-2">
+                        <div class="flex items-center gap-1.5 font-bold">
+                            <i class="fa-solid fa-bag-shopping text-blue-500"></i>
+                            <span>magasin phare d'Amazon</span>
+                        </div>
+                        <span class="text-emerald-500 font-bold bg-emerald-500/10 px-2 py-0.5 rounded">Terminada</span>
+                    </div>
+                    <div class="flex gap-3 items-center">
+                        <img src="${o.product.image}" class="w-16 h-16 rounded-xl object-cover border border-slate-200 dark:border-slate-800">
+                        <div class="flex-1 space-y-1">
+                            <h4 class="font-bold text-slate-900 dark:text-white line-clamp-1">${o.product.name}</h4>
+                            <div class="text-slate-500">Prix: ${o.product.price.toLocaleString('fr-FR')} FCFA</div>
+                            <span class="inline-block bg-emerald-500 text-white text-[9px] px-1.5 py-0.5 rounded font-bold">Garantie officielle</span>
+                        </div>
+                    </div>
+                    <div class="pt-2 border-t border-slate-100 dark:border-slate-800 space-y-1 text-slate-500">
+                        <div class="flex justify-between"><span>Montant total:</span><span class="font-bold text-slate-900 dark:text-white">${o.product.price.toLocaleString('fr-FR')} FCFA</span></div>
+                        <div class="flex justify-between"><span>Montant du revenu:</span><span class="font-bold text-emerald-500">+${o.commission.toLocaleString('fr-FR')} FCFA</span></div>
+                        <div class="flex justify-between"><span>État du paiement:</span><span class="text-blue-500 font-semibold">Payé</span></div>
+                        <div class="flex justify-between"><span>Temps:</span><span>${o.date}</span></div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function confirmRecharge() {
+            const amount = parseFloat(document.getElementById('custom-recharge-input').value);
+            const code = document.getElementById('recharge-pass-code').value.trim();
+            if (!amount || amount <= 0 || !validRechargeCodes.includes(code)) {
+                return showToast("Montant ou code de recharge invalide.", "error");
+            }
+            currentUserData.balance += amount;
+            await saveUserDataToCloud();
+            updateUIState();
+            showToast("Recharge validée avec succès !", "success");
+            switchTab('inicio');
+        }
+
+        async function executeWithdrawal() {
+            const amount = parseFloat(document.getElementById('withdraw-amount-input').value);
+            if (!amount || currentUserData.balance < amount) {
+                return showToast("Solde insuffisant pour ce retrait.", "error");
+            }
+            currentUserData.balance -= amount;
+            await saveUserDataToCloud();
+            updateUIState();
+            showToast("Demande de retrait effectuée.", "success");
+            switchTab('inicio');
+        }
+
+        function switchTab(tab) {
+            ['inicio', 'recargar', 'retiro', 'tarea', 'orden', 'personal', 'admin'].forEach(t => {
+                const el = document.getElementById(`view-${t}`);
+                if (el) el.classList.add('hidden');
+            });
+            const target = document.getElementById(`view-${tab}`);
+            if (target) target.classList.remove('hidden');
+            if (tab === 'admin') renderAdminUsers();
+            if (tab === 'orden') renderOrdersHistory();
+        }
+
+        function selectStore(store) {
+            document.getElementById('store-name-display').innerText = `Centro comercial ${store}`;
+            switchTab('tarea');
+        }
+
+        function switchAdminSubTab(sub) {
+            if (sub === 'users') {
+                document.getElementById('admin-subtab-users').classList.remove('hidden');
+                document.getElementById('admin-subtab-tasks').classList.add('hidden');
+            } else {
+                document.getElementById('admin-subtab-users').classList.add('hidden');
+                document.getElementById('admin-subtab-tasks').classList.remove('hidden');
+            }
+        }
+
+        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+        window.onload = function() {
+            document.getElementById('app-view').classList.add('hidden');
+            document.getElementById('auth-view').classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
